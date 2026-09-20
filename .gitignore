@@ -1,0 +1,12 @@
+# secrets - never commit
+.env
+**/.env
+
+# downloaded models (large binaries)
+models/
+
+# macOS
+.DS_Store
+
+# local scratch
+*.log
