@@ -26,7 +26,7 @@ Whichever bridge you use, the residual-risk rule from `docs/01-architecture.md` 
 
 > The bridge carries thin references only. No source code, no customer data, no credentials, no full documents in bridge messages. Sensitive material lives in the local model and the local vault; link to it, don't paste it.
 
-At 3-5 people this is easy to enforce socially. At 30-50 it needs to be a written policy with periodic reminders.
+At 20-30 people this needs to be a written policy with periodic reminders.
 
 ## Files and the second brain
 
@@ -36,16 +36,16 @@ The **Obsidian vault** is the shared brain: team notes, project docs, meeting re
 
 | Option | Privacy | Fit |
 |---|---|---|
-| **iCloud Drive** | Apple's cloud, consumer-grade | pilot (3-5 people) - zero setup |
+| **iCloud Drive** | Apple's cloud, consumer-grade | pilot only - zero setup |
 | **Obsidian Sync** | E2E encrypted, paid | 3-20 people, simplest private option |
 | **Syncthing** | self-hosted, peer-to-peer, E2E | strict mode, no third party at all |
 | **NAS (Synology etc.)** | self-hosted, LAN | 15+ people, adds backup target |
 
 ### Recommendation by phase
 
-- **Pilot (3-5):** iCloud shared folder. It is fine at this scale and needs no administration.
+- **Pilot:** iCloud shared folder. It is fine at this scale and needs no administration.
 - **Growing (5-20):** switch to Obsidian Sync or Syncthing. iCloud gets awkward once personal Apple IDs and offboarding matter.
-- **Full team (30-50):** Syncthing or a NAS, because you now want granular access control and a backup target.
+- **Fleet (20-30):** Syncthing or a NAS, because you now want granular access control and a backup target.
 
 ### The offboarding gotcha
 

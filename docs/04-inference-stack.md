@@ -115,7 +115,7 @@ Same protocol, same ports, same agent wiring. The rest of this guide is agnostic
 
 ## Optional: a router in front
 
-At pilot scale you do **not** need one - each agent points at its model's port directly. When you pass ~15 people and run many models across several boxes, put [LiteLLM](https://github.com/BerriAI/litellm) in front as a single OpenAI-compatible endpoint that routes, queues, and (if you choose) falls back to a cloud model. See `docs/08-scaling.md`.
+At pilot scale you do **not** need one - each agent points at its model's port directly. When you build the 20-30 person fleet and run models across several boxes, put [LiteLLM](https://github.com/BerriAI/litellm) in front as a single OpenAI-compatible endpoint that routes, queues, and (if you choose) falls back to a cloud model. See `docs/08-scaling.md`.
 
 ## Pitfalls
 

@@ -1,69 +1,60 @@
-# 08 - Scaling
+# 08 - Deployment Plan and Scaling
 
-The pilot is a single Mac Studio. Scaling to a 30-50 person team is **additive**: you buy more of the same box and point profiles at them. No rewrite.
+The target is **20-30 people at steady load**. The deployment is two phases: a de-risk pilot, then the fleet. Beyond 30, scaling stays additive.
 
-## The unit of scale
+## Phase 1 - Pilot (3-5 people, 2-3 weeks)
 
-One Mac Studio = one self-contained inference node (a few models, a few agent profiles). The full deployment is N nodes behind a router.
+One Mac Studio, 3-5 power users. This is **not** the goal state - it is the de-risking run before committing ~$22k.
 
-## Phase plan
+What the pilot must prove:
 
-| Phase | Headcount | Hardware | Topology |
-|---|---|---|---|
-| **Pilot** | 3-5 | 1x Studio (192-256GB) + 1 Mini spare | direct, no router |
-| **Grow** | 5-15 | 2x Studio | split general vs. code/reasoning |
-| **Scale** | 15-30 | 3-4x Studio | per-function nodes + router |
-| **Fleet** | 30-50 | 4-6x Studio + router | mixed fleet, pooled |
+1. **Model quality is acceptable.** People coming off Claude will have opinions. Find out now, not after buying the fleet.
+2. **The bridge + vault workflow sticks.** Real users, real daily use.
+3. **The agents do useful work** for their actual functions, not demo tasks.
 
-## What actually changes at each step
+Exit criteria (answer all three "yes", then buy the fleet):
 
-### Pilot → Grow (add one box)
+- Power users reach for the agents unprompted for daily work.
+- No one is quietly going back to the cloud assistant for routine tasks.
+- The vault is being read and written by both humans and agents.
 
-The concurrency math from `docs/02-hardware.md` starts to bite past ~5-8 simultaneous users. Buy a second Studio and split:
+## Phase 2 - Fleet (20-30 people, steady)
 
-- **Box A** - general models (Qwen2.5-72B) for Atlas, Scribe, and most traffic.
-- **Box B** - code + reasoning (Coder-32B, R1-Distill) for Forge and Reason.
+Add two Studios and a LiteLLM router. This is the deployment described in `docs/02-hardware.md` (tiered, 3 Studios + 1 Mini).
 
-Point each profile's `model.base_url` at the right box's IP:port (they are now on the LAN, not `localhost`). Done.
+What changes from the pilot:
 
-### Grow → Scale (add a router)
+- **Router required.** Agents point `model.base_url` at LiteLLM, not at a box directly. Routing, queueing, and (optionally) cloud spillover happen in one place.
+- **File sync moves to Syncthing/NAS.** iCloud does not survive 20-30 people.
+- **Bridge policy becomes written and enforced**, not social. See `docs/09-security.md`.
+- **Watch + backups become real ops.** Nightly backup of the vault and Hermes state; the watchdog pings every server and gateway.
 
-Once there are 3-4 boxes, put [LiteLLM](https://github.com/BerriAI/litellm) in front. It exposes a single OpenAI-compatible endpoint and:
+### Onboard in cohorts
 
-- routes each request to the right model/box,
-- queues under load instead of dropping,
-- optionally falls back to a cloud model for a specific model name (policy-gated).
+Do not flip 25 people on in one day. Onboard ~5 at a time, one week per cohort:
 
-Every Hermes profile now points `model.base_url` at the LiteLLM endpoint instead of a box directly. Adding a box becomes a config change in one place.
+1. Give them the bridge bots and vault access.
+2. Watch what they ask the agents and where the model falls short.
+3. Fix routing (promote a task from 32B to 70B, add a model, adjust a prompt) before the next cohort.
 
-### Scale → Fleet (pool and specialize)
+This turns the rollout into a tuning loop instead of a support fire.
 
-At 30-50 people you are running a small on-prem inference service. What you add:
+## The tiered → all-70B escape hatch
 
-- **Dedicated nodes per function** (a coder node, a reasoning node, a general node) so heavy engineering traffic does not starve everyone else.
-- **A second box per hot model** for redundancy - one node down should not take out a function.
-- **Monitoring** - a `watch` agent (or a simple `healthcheck.sh` cron) that pings every `llama-server` and every gateway and alerts on failure. See `scripts/healthcheck.sh`.
-- **Backups** - the vault and the Hermes state (profiles, cron, sessions) on a NAS with versioning.
+Start tiered. If the cohort loop surfaces quality complaints on *routine* tasks, the fix is additive: buy a fourth Studio and repoint the affected profiles at a 70B. That promotion path - 32B up to 70B, one profile at a time - is exactly why tiering is the safe default. There is no cheap path the other direction once you have bought 5 boxes.
 
-## The concurrency budget
+## Beyond 30
 
-Repeat of the key number from `docs/02-hardware.md`:
+If the operator grows past 30, the unit of scale is still the Mac Studio:
 
-| Concurrent interactive users | Nodes needed (70B) |
-|---|---|
-| up to 5 | 1 |
-| 5-15 | 2 |
-| 15-30 | 3-4 |
-| 30-50 | 4-6 |
+| Headcount | Hardware | Notes |
+|---|---|---|
+| 20-30 (target) | 3x Studio + router | tiered, steady |
+| 30-50 | 4-6x Studio + router | add boxes, specialize per function |
+| 50+ | Nx Studio + router + monitoring | a small on-prem inference service |
 
-Background/batch agent work (overnight summarization, inbox triage, PR review) is far more forgiving than interactive chat and can queue. So your peak-interactive count is the number that drives node count.
+Same software, same models, same bridge. Adding capacity is "buy a box, point profiles at it."
 
-## What does NOT change
+## The one policy decision to make before the fleet
 
-- The software stack (llama.cpp + Hermes + bridge + Obsidian) is identical.
-- The agent roster and per-agent model assignments are identical.
-- The security posture and bridge policy are identical (and get *more* important, not less).
-
-## One decision to make before you scale
-
-**Cloud fallback for overflow, or hard local-only?** At 30-50 people, peak load will occasionally exceed local capacity. You either (a) let people queue (slow but pure), or (b) let LiteLLM spill *non-sensitive* traffic to a cloud model. That is a policy decision, not a technical one - write it down before you build the router. See `docs/09-security.md`.
+**Cloud fallback for overflow, or hard local-only?** At 20-30 people, peak load will occasionally test local capacity. You either (a) let people queue (slow but pure), or (b) let LiteLLM spill *non-sensitive* traffic to a cloud model. That is a policy decision, not a technical one - write it down before you build the router. See `docs/09-security.md`.

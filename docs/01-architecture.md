@@ -33,7 +33,7 @@ Three ways to resolve it:
 2. **Self-host Matrix (strict).** Run a Matrix homeserver on the same Mac Studio. Everything is end-to-end encrypted and in-house. More setup, slightly clunkier UX.
 3. **Split.** Bridge for coordination (non-sensitive), a self-hosted web chat for anything sensitive.
 
-**Recommendation:** start with (1) at 3-5 people - the policy is easy to enforce and the model is already local. Revisit Matrix when headcount passes ~15 or the work becomes more sensitive. See `docs/07-bridge-and-files.md`.
+**Recommendation:** at 20-30 people, keep Telegram/Slack for the pilot and early fleet, but write the bridge data policy down from day one - at this headcount it is enforced, not social. The model is already local; the bridge is the remaining leak. Revisit self-hosted Matrix if the work is sensitive enough that message metadata matters. See `docs/07-bridge-and-files.md`.
 
 ## Layer walkthrough
 
@@ -60,7 +60,7 @@ Each profile's `model.base_url` points at the local `llama-server` port for its 
 The team's chat app. Each Hermes profile is its own bot on the bridge, so "talking to Atlas" is just messaging `@atlas_bot`. See `docs/07-bridge-and-files.md`.
 
 ### 5. Files / second brain
-An Obsidian vault is the shared knowledge base. Each agent reads and writes it, and the team browses it. Synced via iCloud (pilot) or Syncthing/NAS (strict). See `docs/07-bridge-and-files.md`.
+An Obsidian vault is the shared knowledge base. Each agent reads and writes it, and the team browses it. Synced via Syncthing/NAS. See `docs/07-bridge-and-files.md`.
 
 ## Data flow (happy path)
 

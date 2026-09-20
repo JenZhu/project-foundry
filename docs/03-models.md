@@ -7,7 +7,7 @@
 3. **Quantized to fit.** Use GGUF quantizations sized to unified memory, not the full BF16 weights.
 4. **License-checked.** Everything below is permissively or openly licensed for internal commercial use. Verify against your own counsel before redistributing.
 
-## The pilot set
+## The model set
 
 | Role | Model | Quant | RAM | Serves |
 |---|---|---|---|---|
@@ -62,7 +62,7 @@ Typical GGUF repos (verify at download time):
 - `bartowski/DeepSeek-R1-Distill-Qwen-32B-GGUF`
 - `gpustack/bge-m3-GGUF`
 
-`scripts/download-models.sh` pulls the pilot set for you.
+`scripts/download-models.sh` pulls the model set for you.
 
 ## Embeddings and RAG
 
