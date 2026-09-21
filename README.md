@@ -6,6 +6,8 @@ A private, local-first AI agent fleet for a 20-30 person company. No cloud model
 
 ---
 
+> **▶ Start here:** `docs/10-kickoff-runbook.md` is the week-by-week plan - buy list, setup commands, go/no-go decision. Read the rest for the *why* behind each step.
+
 ## The problem
 
 A 20-30 person company runs on laptops, and everyone reaches for a cloud AI assistant for writing, code, and analysis. Every prompt - source snippets, customer notes, internal strategy - is shipped to a third party and used to train their models. For a company whose product *is* its intellectual property, that is an open tap.
@@ -74,6 +76,7 @@ docs/
   07-bridge-and-files.md  Telegram/Slack/Matrix + Obsidian sync
   08-scaling.md           Deployment plan: pilot → fleet
   09-security.md          Threat model + hardening + data policy
+  10-kickoff-runbook.md   The do-this-now plan (start here)
 assets/
   architecture.svg        System diagram
 scripts/
